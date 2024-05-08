@@ -9,6 +9,9 @@ down: kill-server kill-compose
 
 dev: clean test-image server
 
+build:
+	docker build -t weaveworksdemos/front-end:0.3.12 .
+
 # Brings the backend services up using Docker Compose
 compose:
 	@docker-compose -f test/docker-compose.yml up -d

@@ -11,6 +11,7 @@ var request      = require("request")
   , cart         = require("./api/cart")
   , catalogue    = require("./api/catalogue")
   , orders       = require("./api/orders")
+  , reviews      = require("./api/reviews")
   , user         = require("./api/user")
   , metrics      = require("./api/metrics")
   , app          = express()
@@ -48,6 +49,7 @@ process.argv.forEach(function (val, index, array) {
 app.use(cart);
 app.use(catalogue);
 app.use(orders);
+app.use(reviews);
 app.use(user);
 
 app.use(helpers.errorHandler);
