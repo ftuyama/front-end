@@ -37,7 +37,6 @@
 
     <link rel="shortcut icon" href="favicon.png">
 
-
 </head>
 
 <body>
@@ -159,39 +158,53 @@ _________________________________________________________ -->
 
                 </div>
             </div>
+        </div>
+        <!-- /.container -->
 
-            <!-- review -->
-            <div class="container">
-              <h3>Submit a Review</h3>
-              <form id="reviewForm" action="/reviews" method="POST">
-                  <input type="hidden" id="customerId" name="customerId" value="">
+        <div class="container">
+            <div class="box">
+              <!-- reviews list -->
+              <div id="reviewsList">
+                <h4>Product reviews <span id="averageRating"></span></h4>
+                <p id="noReviews">No reviews for this product yet</p>
+              </div>
+              <!-- /reviews list -->
 
-                  <div class="form-group">
-                    <label for="itemId">Product</label>
-                    <select class="form-control" id="itemId" name="itemId">
-                    </select>
-                  </div>
+              <hr>
 
-                  <div class="form-group">
-                    <label for="rating">Rating</label>
-                    <select class="form-control" id="rating" name="rating">
-                      <option value="5">5 stars</option>
-                      <option value="4">4 stars</option>
-                      <option value="3">3 stars</option>
-                      <option value="2">2 stars</option>
-                      <option value="1">1 star</option>
-                    </select>
-                  </div>
+              <!-- review -->
+              <div>
+                <h3>Submit a Review</h3>
+                <form id="reviewForm" action="/reviews" method="POST">
+                    <input type="hidden" id="customerId" name="customerId" value="">
 
-                  <div class="form-group">
-                      <label for="comment">Comment</label>
-                      <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
-                  </div>
+                    <div class="form-group">
+                      <label for="itemId">Product</label>
+                      <select class="form-control" id="itemId" name="itemId">
+                      </select>
+                    </div>
 
-                  <button type="submit" class="btn btn-primary">Submit</button>
-              </form>
+                    <div class="form-group">
+                      <label for="rating">Rating</label>
+                      <select class="form-control" id="rating" name="rating">
+                        <option value="5">5 stars</option>
+                        <option value="4">4 stars</option>
+                        <option value="3">3 stars</option>
+                        <option value="2">2 stars</option>
+                        <option value="1">1 star</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="comment">Comment</label>
+                        <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+            <!-- /review -->
           </div>
-          <!-- /review -->
 
         </div>
         <!-- /.container -->
@@ -232,6 +245,23 @@ _________________________________________________________ -->
 </script>
 
 <script>
+    $('#reviewForm').submit(function(e) {
+      e.preventDefault();
+      var formDataArray = $('#reviewForm').serializeArray();
+      var formDataJSON = JSON.stringify({
+        review:
+          formDataArray.reduce((acc, {name, value}) => {
+            if (name == 'rating') {
+              acc[name] = parseInt(value);
+            } else {
+              acc[name] = value;
+            }
+            return acc;
+          }, {})
+      });
+      submitReview(formDataJSON);
+    });
+
     $(document).ready(function () {
         var orderUrl = $.query.get('order') ? $.query.get('order') : "#";
         console.log("getting " + orderUrl);
@@ -242,12 +272,14 @@ _________________________________________________________ -->
             var cartTotal = 0;
             var numItemsInCart = 0;
             var shipping = 4.99;
+            var customerId = data.customerId;
             //$('#orderTotal').text('$' + data.total.toFixed(2));
             $('#orderNumber').text(id);
             $('#orderDate').text(data.date.split(".")[0].replace("T", " "));
             $('#orderStatus').text("shipped");
             $.each(data.items, function (index, item) {
                 $.getJSON('/catalogue/' + item.itemId, function (data) {
+                    getReviews(data.name, item.itemId, customerId);
                     console.log(JSON.stringify(data));
                     $("#itemId").append($("<option>").val(item.itemId).text(data.name));
                     $('#tableOrder').append(' <tr>\
@@ -291,6 +323,38 @@ _________________________________________________________ -->
                 </p>');
         });
     });
+
+    function getReviews(itemName, itemId, customerId) {
+      $.getJSON(`/reviews/item/${itemId}/customer/${customerId}`, function (data) {
+          if (data != null && data.reviews.length > 0) {
+            $('#noReviews').hide();
+
+            var reviewsList = $("#reviewsList");
+            var totalRating = 0;
+
+            $.each(data.reviews, function(index, review) {
+                var listItem = $("<li>").addClass("list-group-item");
+                var rating = $("<span>").text(getStarRating(review.rating)).addClass("badge");
+                var product = $("<span>").text(itemName).addClass('label label-primary');
+                var comment = $("<span>").text("   " + review.comment);
+                listItem.append(rating).append(product).append(comment);
+                reviewsList.append(listItem);
+                totalRating += review.rating;
+            });
+
+            var averageRating = totalRating / data.reviews.length;
+            $("#averageRating").text(`${getStarRating(averageRating)} ${averageRating.toFixed(2)}`).addClass("label label-default");
+          }
+      });
+
+      function getStarRating(rating) {
+          var stars = "";
+          for (var i = 0; i < rating; i++) {
+              stars += "⭐";
+          }
+          return stars;
+      }
+    }
 </script>
 
 </body>

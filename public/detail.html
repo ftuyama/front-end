@@ -36,15 +36,6 @@
     <script src="js/respond.min.js"></script>
 
     <link rel="shortcut icon" href="favicon.png">
-
-    <style>
-      .star-rating {
-          display: inline-block; /* Make the span behave like an inline element */
-          vertical-align: bottom;
-          width: 100px; /* Set a fixed width for the first portion */
-          overflow: hidden; /* Hide any overflow content */
-      }
-  </style>
 </head>
 
 <body>
@@ -221,6 +212,7 @@ _________________________________________________________ -->
             $("#imageMain").attr("src", data.imageUrl[0]);
             $("#buttonCart").attr("onClick", "addToCart(\'" + data.id + "\')");
             var thumbHtml = "";
+            var itemName = data.name;
             for (var i = 0; i < data.imageUrl.length; i++) {
                 thumbHtml = thumbHtml +
                         '<div class="col-xs-4">\
@@ -241,9 +233,10 @@ _________________________________________________________ -->
 
                   $.each(data.reviews, function(index, review) {
                       var listItem = $("<li>").addClass("list-group-item");
-                      var rating = $("<span>").addClass("star-rating").text(getStarRating(review.rating));
-                      var comment = $("<span>").text(review.comment);
-                      listItem.append(rating).append(comment);
+                      var rating = $("<span>").text(getStarRating(review.rating)).addClass("badge");
+                      var product = $("<span>").text(itemName).addClass('label label-primary');
+                      var comment = $("<span>").text("   " + review.comment);
+                      listItem.append(rating).append(product).append(comment);
                       reviewsList.append(listItem);
                       totalRating += review.rating;
                   });

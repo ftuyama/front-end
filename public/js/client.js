@@ -146,6 +146,22 @@ function addToCart(id) {
     });
 }
 
+function submitReview(data) {
+  console.log(data);
+  $.ajax({
+      url: "reviews",
+      type: "POST",
+      data: data,
+      success: function (data, textStatus, jqXHR) {
+          alert('Success: ' + textStatus);
+          location.reload();
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        alert('Error: ' + textStatus + ' | ' + errorThrown);
+      }
+  });
+}
+
 // function update To Cart(itemId, quantity, callback)
 // cart/update request sent to frontend server (index.js - app.post("/cart/update" function...)
 function updateToCart(id, quantity, next) {
