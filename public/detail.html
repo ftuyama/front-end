@@ -37,7 +37,14 @@
 
     <link rel="shortcut icon" href="favicon.png">
 
-
+    <style>
+      .star-rating {
+          display: inline-block; /* Make the span behave like an inline element */
+          vertical-align: bottom;
+          width: 100px; /* Set a fixed width for the first portion */
+          overflow: hidden; /* Hide any overflow content */
+      }
+  </style>
 </head>
 
 <body>
@@ -132,6 +139,13 @@
                     </blockquote>
 
                     <hr>
+
+                    <div id="reviewsList">
+                      <h4>Product reviews <span id="averageRating"></span></h4>
+                      <p id="noReviews">No reviews for this product yet</p>
+                    </div>
+
+                    <hr>
                     <div class="social">
                         <h4>Show it to your friends</h4>
                         <p>
@@ -217,6 +231,35 @@ _________________________________________________________ -->
             }
             $("#thumbs").append(thumbHtml);
             $("#description").text(data.description);
+
+            $.getJSON(`/reviews/item/${id}`, function (data) {
+                if (data != null && data.reviews.length > 0) {
+                  $('#noReviews').hide();
+
+                  var reviewsList = $("#reviewsList");
+                  var totalRating = 0;
+
+                  $.each(data.reviews, function(index, review) {
+                      var listItem = $("<li>").addClass("list-group-item");
+                      var rating = $("<span>").addClass("star-rating").text(getStarRating(review.rating));
+                      var comment = $("<span>").text(review.comment);
+                      listItem.append(rating).append(comment);
+                      reviewsList.append(listItem);
+                      totalRating += review.rating;
+                  });
+
+                  var averageRating = totalRating / data.reviews.length;
+                  $("#averageRating").text(`${getStarRating(averageRating)} ${averageRating.toFixed(2)}`).addClass("label label-default");
+                }
+            });
+
+            function getStarRating(rating) {
+                var stars = "";
+                for (var i = 0; i < rating; i++) {
+                    stars += "⭐";
+                }
+                return stars;
+            }
 
             $.getJSON('/catalogue', {sort: "id", size: 3, tags: data.tag[0]}, function (data) {
                 if (data != null) {

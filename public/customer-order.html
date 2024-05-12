@@ -162,25 +162,30 @@ _________________________________________________________ -->
 
             <!-- review -->
             <div class="container">
-              <h1>Submit a Review</h1>
-              <form id="reviewForm" action="http://localhost/reviews" method="POST">
-                  <input type="hidden" name="customerId" value="57a98d98e4b00679b4a830b2">
-                  <input type="hidden" name="itemId" value="837ab141-399e-4c1f-9abc-bace40296bac">
+              <h3>Submit a Review</h3>
+              <form id="reviewForm" action="/reviews" method="POST">
+                  <input type="hidden" id="customerId" name="customerId" value="">
+
+                  <div class="form-group">
+                    <label for="itemId">Product</label>
+                    <select class="form-control" id="itemId" name="itemId">
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="rating">Rating</label>
+                    <select class="form-control" id="rating" name="rating">
+                      <option value="5">5 stars</option>
+                      <option value="4">4 stars</option>
+                      <option value="3">3 stars</option>
+                      <option value="2">2 stars</option>
+                      <option value="1">1 star</option>
+                    </select>
+                  </div>
 
                   <div class="form-group">
                       <label for="comment">Comment</label>
                       <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
-                  </div>
-
-                  <div class="form-group">
-                      <label for="rating">Rating</label>
-                      <div>
-                          <input type="radio" id="star5" name="rating" value="5"><label for="star5" title="5 stars">5 stars</label>
-                          <input type="radio" id="star4" name="rating" value="4"><label for="star4" title="4 stars">4 stars</label>
-                          <input type="radio" id="star3" name="rating" value="3"><label for="star3" title="3 stars">3 stars</label>
-                          <input type="radio" id="star2" name="rating" value="2"><label for="star2" title="2 stars">2 stars</label>
-                          <input type="radio" id="star1" name="rating" value="1"><label for="star1" title="1 star">1 star</label>
-                      </div>
                   </div>
 
                   <button type="submit" class="btn btn-primary">Submit</button>
@@ -244,6 +249,7 @@ _________________________________________________________ -->
             $.each(data.items, function (index, item) {
                 $.getJSON('/catalogue/' + item.itemId, function (data) {
                     console.log(JSON.stringify(data));
+                    $("#itemId").append($("<option>").val(item.itemId).text(data.name));
                     $('#tableOrder').append(' <tr>\
                                                 <td>\
                                                     <a href="#">\
@@ -268,6 +274,7 @@ _________________________________________________________ -->
                     $('#orderTotal').text('$' + (cartTotal + shipping).toFixed(2));
                 });
             })
+            $("#customerId").val(data.customerId);
             $('#addressInvoice').replaceWith('\
                 <p>' + data.customer.firstName + ' ' + data.customer.lastName + '\
                     <br>' + data.address.number + ' ' + data.address.street + '\
